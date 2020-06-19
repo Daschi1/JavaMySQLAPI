@@ -6,7 +6,8 @@ class SelectBuilder extends StatementBuilder {
         super(database, table);
     }
 
-    void query() {
-
+    @Override
+    public void query() {
+        super.query();
     }
 }

@@ -13,6 +13,10 @@ class StatementBuilder {
         return new SelectBuilder(this.database, this.table);
     }
 
+    void query() {
+
+    }
+
     String getDatabase() {
         return this.database;
     }
