@@ -7,22 +7,27 @@ import java.sql.*;
 public class MySQL {
     private static MySQL mySQL;
 
-    static {
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            try {
-                if (MySQL.mySQL != null) {
-                    MySQL.mySQL.closeConnection();
-                }
-            } catch (final SQLException exception) {
-                exception.printStackTrace();
+    private static boolean autoDisconnect = false;
+    private static final Thread shutdownHook = new Thread(MySQL::disconnect);
+
+    public static void autoDisconnect(final boolean autoDisconnect) {
+        if (autoDisconnect) {
+            if (MySQL.autoDisconnect) {
+                MySQL.autoDisconnect = false;
+                Runtime.getRuntime().removeShutdownHook(MySQL.shutdownHook);
             }
-        }));
+        } else {
+            if (!MySQL.autoDisconnect) {
+                MySQL.autoDisconnect = true;
+                Runtime.getRuntime().addShutdownHook(MySQL.shutdownHook);
+            }
+        }
     }
 
     public static void using(final MySQL mySQL) {
         try {
             if (MySQL.mySQL != null) {
-                MySQL.mySQL.closeConnection();
+                MySQL.disconnect();
                 MySQL.mySQL = null;
                 MySQL.using(mySQL);
             } else {
@@ -31,6 +36,16 @@ public class MySQL {
             }
         } catch (final SQLException | ClassNotFoundException exception) {
             exception.printStackTrace();
+        }
+    }
+
+    public static void disconnect() {
+        if (MySQL.mySQL != null) {
+            try {
+                MySQL.getMySQL().closeConnection();
+            } catch (final SQLException exception) {
+                exception.printStackTrace();
+            }
         }
     }
 
