@@ -1,9 +1,23 @@
 package de.daschi.core;
 
+import javax.sql.rowset.CachedRowSet;
+import javax.sql.rowset.RowSetProvider;
 import java.sql.*;
 
 public class MySQL {
     private static MySQL mySQL;
+
+    static {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                if (MySQL.mySQL != null) {
+                    MySQL.mySQL.closeConnection();
+                }
+            } catch (final SQLException exception) {
+                exception.printStackTrace();
+            }
+        }));
+    }
 
     public static void using(final MySQL mySQL) {
         try {
@@ -20,15 +34,28 @@ public class MySQL {
         }
     }
 
-    public static StatementBuilder builder(final String table) {
-        return MySQL.builder(MySQL.mySQL.database, table);
+    public static CachedRowSet query(final String sql) {
+        try {
+            return MySQL.getMySQL().executeQuery(sql);
+        } catch (final SQLException exception) {
+            exception.printStackTrace();
+        }
+        return null;
     }
 
-    public static StatementBuilder builder(final String database, final String table) {
-        return new StatementBuilder(database, table);
+    public static void update(final String sql) {
+        try {
+            MySQL.getMySQL().executeUpdate(sql);
+        } catch (final SQLException exception) {
+            exception.printStackTrace();
+        }
     }
 
-    static MySQL getMySQL() {
+    public static String preventSQLInjection(final String parameter) {
+        return MySQL.getMySQL().removeSQLInjectionPossibility(parameter);
+    }
+
+    public static MySQL getMySQL() {
         return MySQL.mySQL;
     }
 
@@ -66,7 +93,7 @@ public class MySQL {
             if (this.database != null) {
                 connectionURL = connectionURL + "/" + this.database;
             }
-            Class.forName("com.mysql.jdbc.Driver");
+            Class.forName("com.mysql.cj.jdbc.Driver");
             this.connection = DriverManager.getConnection(connectionURL, this.username, this.password);
         }
     }
@@ -81,7 +108,11 @@ public class MySQL {
         }
     }
 
-    void executeUpdate(final String sql) throws SQLException {
+    public String removeSQLInjectionPossibility(final String sqlInjectionPossibility) {
+        return sqlInjectionPossibility.replaceAll("[']", "\\\\'").replaceAll("[`]", "\\\\`");
+    }
+
+    public void executeUpdate(final String sql) throws SQLException {
         if (this.isConnectionOpen()) {
             final Statement statement = this.connection.createStatement();
             statement.executeUpdate(sql);
@@ -89,10 +120,14 @@ public class MySQL {
         }
     }
 
-    ResultSet executeQuery(final String sql) throws SQLException {
+    public CachedRowSet executeQuery(final String sql) throws SQLException {
         if (this.isConnectionOpen()) {
             final Statement statement = this.connection.createStatement();
-            return statement.executeQuery(sql);
+            final ResultSet resultSet = statement.executeQuery(sql);
+            final CachedRowSet cachedRowSet = RowSetProvider.newFactory().createCachedRowSet();
+            cachedRowSet.populate(resultSet);
+            statement.close();
+            return cachedRowSet;
         }
         return null;
     }

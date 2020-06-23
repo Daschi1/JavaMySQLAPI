@@ -5,10 +5,31 @@ plugins {
 group 'de.daschi'
 version 'v1.0.0a'
 
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
 repositories {
     mavenCentral()
+
+    maven {
+        url = System.getenv("minereaperJFrog_url")
+        credentials {
+            username = System.getenv("minereaperJFrog_user")
+            password = System.getenv("minereaperJFrog_password")
+        }
+    }
 }
 
 dependencies {
     compile(group: 'mysql', name: 'mysql-connector-java', version: '8.0.20')
+
+    compile(group: 'de.daschi', name: 'updated-java-sql-generator', version: 'v1.0.0a')
+}
+
+jar {
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    exclude("META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA")
 }
