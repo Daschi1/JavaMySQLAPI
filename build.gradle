@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'de.daschi'
-version 'v1.0.1a'
+version 'v1.0.1b'
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
