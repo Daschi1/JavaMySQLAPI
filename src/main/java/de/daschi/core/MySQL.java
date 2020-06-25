@@ -109,7 +109,7 @@ public class MySQL {
                 connectionURL = connectionURL + "/" + this.database;
             }
             connectionURL += "?useSSL=false";
-            connectionURL += Class.forName("com.mysql.cj.jdbc.Driver");
+            Class.forName("com.mysql.cj.jdbc.Driver");
             this.connection = DriverManager.getConnection(connectionURL, this.username, this.password);
         }
     }
