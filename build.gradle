@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'de.daschi'
-version 'v1.0.1b'
+version 'v1.0.2a'
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
@@ -24,7 +24,7 @@ repositories {
 dependencies {
     compile(group: 'mysql', name: 'mysql-connector-java', version: '8.0.20')
 
-    compile(group: 'de.daschi', name: 'updated-java-sql-generator', version: 'v1.0.0a')
+    compile(group: 'de.daschi', name: 'updated-java-sql-generator', version: 'v1.0.2a')
 }
 
 jar {
