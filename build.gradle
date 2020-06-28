@@ -12,19 +12,13 @@ tasks.withType(JavaCompile) {
 repositories {
     mavenCentral()
 
-    maven {
-        url = System.getenv("minereaperJFrog_url")
-        credentials {
-            username = System.getenv("minereaperJFrog_user")
-            password = System.getenv("minereaperJFrog_password")
-        }
-    }
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
     compile(group: 'mysql', name: 'mysql-connector-java', version: '8.0.20')
 
-    compile(group: 'de.daschi', name: 'updated-java-sql-generator', version: 'v1.0.2a')
+    compile('com.github.Zyonic-Software:updated-java-sql-generator:v1.0.2a')
 }
 
 jar {
