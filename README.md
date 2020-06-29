@@ -1,7 +1,7 @@
 # JavaMySQLAPI
 ## A MySQL api for java.
 
-[![](https://jitpack.io/v/Zyonic-Software/JavaMySQLAPI.svg)](https://jitpack.io/#Zyonic-Software/JavaMySQLAPI)
+[![](https://jitpack.io/v/Daschi1/JavaMySQLAPI.svg)](https://jitpack.io/#Daschi1/JavaMySQLAPI)
 # Usage (For advice on how to create a sql query, look [here](https://github.com/Daschi1/updated-java-sql-generator))
 
 ```java
