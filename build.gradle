@@ -6,7 +6,7 @@ plugins {
 apply plugin: 'maven'
 
 group 'de.daschi'
-version 'v1.0.3a'
+version 'v1.0.6a'
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
@@ -20,8 +20,9 @@ repositories {
 
 dependencies {
     compile(group: 'mysql', name: 'mysql-connector-java', version: '8.0.20')
+    compile(group: 'org.jetbrains', name: 'annotations', version: '19.0.0')
 
-    compile('com.github.Zyonic-Software:updated-java-sql-generator:v1.0.2a')
+    compile('com.github.Daschi1:updated-java-sql-generator:v1.0.2a')
 }
 
 jar {
