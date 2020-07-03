@@ -1,5 +1,7 @@
 package de.daschi.core;
 
+import org.intellij.lang.annotations.Language;
+
 import javax.sql.rowset.CachedRowSet;
 import javax.sql.rowset.RowSetProvider;
 import java.sql.*;
@@ -49,7 +51,7 @@ public class MySQL {
         }
     }
 
-    public static CachedRowSet query(final String sql) {
+    public static CachedRowSet query(@Language("MySQL") final String sql) {
         try {
             return MySQL.getMySQL().executeQuery(sql);
         } catch (final SQLException exception) {
@@ -58,12 +60,21 @@ public class MySQL {
         return null;
     }
 
-    public static void update(final String sql) {
+    public static void update(@Language("MySQL") final String sql) {
         try {
             MySQL.getMySQL().executeUpdate(sql);
         } catch (final SQLException exception) {
             exception.printStackTrace();
         }
+    }
+
+    public static PreparedStatement preparedStatement(@Language("MySQL") final String sql) {
+        try {
+            return MySQL.getMySQL().executePreparedStatement(sql);
+        } catch (final SQLException exception) {
+            exception.printStackTrace();
+        }
+        return null;
     }
 
     public static String preventSQLInjection(final String parameter) {
@@ -144,6 +155,13 @@ public class MySQL {
             cachedRowSet.populate(resultSet);
             statement.close();
             return cachedRowSet;
+        }
+        return null;
+    }
+
+    public PreparedStatement executePreparedStatement(final String sql) throws SQLException {
+        if (this.isConnectionOpen()) {
+            return this.connection.prepareStatement(sql);
         }
         return null;
     }
