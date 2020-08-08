@@ -15,4 +15,6 @@ MySQL.update(/*sql*/); //execute an update
 MySQL.preventSQLInjection(/*parameter*/); //prevents mySQLInjection by adding comments for all ' and `
 
 MySQL mySQL = MySQL.getMySQL(); //get mySQL for more options
+
+Look into the SimpleMySQL class for some query methods
 ```
