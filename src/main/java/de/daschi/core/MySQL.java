@@ -119,7 +119,7 @@ public class MySQL {
             if (this.database != null) {
                 connectionURL = connectionURL + "/" + this.database;
             }
-            connectionURL += "?useSSL=false?allowPublicKeyRetrieval=true";
+            connectionURL += "?useSSL=false&allowPublicKeyRetrieval=true";
             Class.forName("com.mysql.cj.jdbc.Driver");
             this.connection = DriverManager.getConnection(connectionURL, this.username, this.password);
         }
