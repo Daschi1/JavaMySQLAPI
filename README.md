@@ -16,5 +16,5 @@ MySQL.preventSQLInjection(/*id*/, /*parameter*/); //prevents mySQLInjection by a
 
 MySQL mySQL = MySQL.getMySQL(/*id*/); //get mySQL for more options
 
-You can also save your own MySQL object
+If you don't like working with the static methods and the id system, you can also just save your own MySQL object.
 ```
