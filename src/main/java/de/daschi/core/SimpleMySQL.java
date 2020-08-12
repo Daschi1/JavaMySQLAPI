@@ -1,16 +1,13 @@
-package de.daschi.core;//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
+package de.daschi.core;
 
-import org.jetbrains.annotations.NotNull;
+public class SimpleMySQL { // NOTE this class is deprecated, may be revisited at a later point
 
-import javax.sql.rowset.CachedRowSet;
-
-public class SimpleMySQL {
-
-    public static CachedRowSet select(@NotNull final String table, @NotNull final String whereColumn, @NotNull final String whereComparator, @NotNull final Object whereValue) {
-        return MySQL.query("SELECT * FROM `" + MySQL.preventSQLInjection(table) + "` WHERE `" + MySQL.preventSQLInjection(whereColumn) + "` " + MySQL.preventSQLInjection(whereComparator) + " '" + MySQL.preventSQLInjection(whereValue.toString()) + "';");
+    /*public static CachedRowSet select(@NotNull final String table, @NotNull final String whereColumn, @NotNull final String whereComparator, @NotNull final Object whereValue) {
+        try {
+            return Objects.requireNonNull(MySQL.getMySQL()).executeQuery("SELECT * FROM `" + MySQL.getMySQL().removeSQLInjectionPossibility(table) + "` WHERE `" + MySQL.getMySQL().removeSQLInjectionPossibility(whereColumn) + "` " + MySQL.getMySQL().removeSQLInjectionPossibility(whereComparator) + " '" + MySQL.getMySQL().removeSQLInjectionPossibility(whereValue.toString()) + "';");
+        } catch (final SQLException exception) {
+            exception.printStackTrace();
+        }
     }
 
     public static void insert(@NotNull final String table, @NotNull final Object... values) {
@@ -32,5 +29,5 @@ public class SimpleMySQL {
 
     public static void delete(@NotNull final String table, @NotNull final String whereColumn, @NotNull final String whereComparator, @NotNull final Object whereValue) {
         MySQL.update("DELETE FROM `" + MySQL.preventSQLInjection(table) + "` WHERE `" + MySQL.preventSQLInjection(whereColumn) + "` " + MySQL.preventSQLInjection(whereComparator) + " '" + MySQL.preventSQLInjection(whereValue.toString()) + "';");
-    }
+    }*/
 }

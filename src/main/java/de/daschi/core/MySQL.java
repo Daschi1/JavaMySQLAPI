@@ -5,84 +5,118 @@ import org.intellij.lang.annotations.Language;
 import javax.sql.rowset.CachedRowSet;
 import javax.sql.rowset.RowSetProvider;
 import java.sql.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MySQL {
-    private static MySQL mySQL;
 
-    private static boolean autoDisconnect = false;
-    private static final Thread shutdownHook = new Thread(MySQL::disconnect);
+    private static final Map<String, MySQL> mySQLs = new HashMap<>();
+    private static final Map<String, Boolean> autoDisconnects = new HashMap<>();
 
-    public static void autoDisconnect(final boolean autoDisconnect) {
-        if (autoDisconnect) {
-            if (MySQL.autoDisconnect) {
-                MySQL.autoDisconnect = false;
-                Runtime.getRuntime().removeShutdownHook(MySQL.shutdownHook);
+    private static final Thread shutdownHook = new Thread(() -> MySQL.autoDisconnects.forEach((s, aBoolean) -> {
+        if (aBoolean) {
+            try {
+                MySQL.mySQLs.get(s).closeConnection();
+            } catch (SQLException exception) {
+                exception.printStackTrace();
             }
+        }
+    }));
+
+    public static void autoDisconnect(final String id, final boolean autoDisconnect) {
+        if (MySQL.autoDisconnects.containsKey(id)) {
+            MySQL.autoDisconnects.put(id, autoDisconnect);
+        }
+        if (MySQL.autoDisconnects.isEmpty()) {
+            Runtime.getRuntime().removeShutdownHook(MySQL.shutdownHook);
         } else {
-            if (!MySQL.autoDisconnect) {
-                MySQL.autoDisconnect = true;
-                Runtime.getRuntime().addShutdownHook(MySQL.shutdownHook);
-            }
+            Runtime.getRuntime().addShutdownHook(MySQL.shutdownHook);
         }
     }
 
-    public static void using(final MySQL mySQL) {
+    public static void add(final String id, final MySQL mySQL) {
         try {
-            if (MySQL.mySQL != null) {
-                MySQL.disconnect();
-                MySQL.mySQL = null;
-                MySQL.using(mySQL);
+            if (MySQL.mySQLs.containsKey(id)) {
+                MySQL.disconnect(id);
+                MySQL.mySQLs.remove(id);
+                MySQL.add(id, mySQL);
             } else {
-                MySQL.mySQL = mySQL;
-                MySQL.mySQL.openConnection();
+                MySQL.mySQLs.put(id, mySQL);
+                MySQL.autoDisconnects.put(id, false);
+                MySQL.mySQLs.get(id).openConnection();
             }
         } catch (final SQLException | ClassNotFoundException exception) {
             exception.printStackTrace();
         }
     }
 
-    public static void disconnect() {
-        if (MySQL.mySQL != null) {
+    public static MySQL getMySQL() {
+        if (!MySQL.mySQLs.isEmpty()) {
+            return (MySQL) MySQL.mySQLs.values().toArray()[0];
+        }
+        return null;
+    }
+
+    public static MySQL getMySQL(final String id) {
+        if (MySQL.mySQLs.containsKey(id)) {
+            return MySQL.mySQLs.remove(id);
+        }
+        return null;
+    }
+
+    public static boolean hasMySQL(final String id) {
+        return MySQL.mySQLs.containsKey(id);
+    }
+
+    public static void remove(final String id) {
+        if (MySQL.mySQLs.containsKey(id)) {
+            MySQL.disconnect(id);
+            MySQL.mySQLs.remove(id);
+        }
+    }
+
+    public static void disconnect(final String id) {
+        if (MySQL.mySQLs.containsKey(id)) {
             try {
-                MySQL.getMySQL().closeConnection();
+                MySQL.mySQLs.get(id).closeConnection();
             } catch (final SQLException exception) {
                 exception.printStackTrace();
             }
         }
     }
 
-    public static CachedRowSet query(@Language("MySQL") final String sql) {
+    public static CachedRowSet query(final String id, @Language("MySQL") final String sql) {
         try {
-            return MySQL.getMySQL().executeQuery(sql);
+            return MySQL.mySQLs.get(id).executeQuery(sql);
         } catch (final SQLException exception) {
             exception.printStackTrace();
         }
         return null;
     }
 
-    public static void update(@Language("MySQL") final String sql) {
+    public static void update(final String id, @Language("MySQL") final String sql) {
         try {
-            MySQL.getMySQL().executeUpdate(sql);
+            MySQL.mySQLs.get(id).executeUpdate(sql);
         } catch (final SQLException exception) {
             exception.printStackTrace();
         }
     }
 
-    public static PreparedStatement preparedStatement(@Language("MySQL") final String sql) {
+    public static PreparedStatement preparedStatement(final String id, @Language("MySQL") final String sql) {
         try {
-            return MySQL.getMySQL().executePreparedStatement(sql);
+            return MySQL.mySQLs.get(id).executePreparedStatement(sql);
         } catch (final SQLException exception) {
             exception.printStackTrace();
         }
         return null;
     }
 
-    public static String preventSQLInjection(final String parameter) {
-        return MySQL.getMySQL().removeSQLInjectionPossibility(parameter);
+    public static String preventSQLInjection(final String id, final String parameter) {
+        return MySQL.mySQLs.get(id).removeSQLInjectionPossibility(parameter);
     }
 
-    public static MySQL getMySQL() {
-        return MySQL.mySQL;
+    public static Map<String, MySQL> getMySQLs() {
+        return MySQL.mySQLs;
     }
 
     private final String hostname;
@@ -113,25 +147,23 @@ public class MySQL {
         this.database = database;
     }
 
-    void openConnection() throws SQLException, ClassNotFoundException {
+    public void openConnection() throws SQLException, ClassNotFoundException {  // TODO: 12.08.2020 use MySQLDataSource
         if (!this.isConnectionOpen()) {
             String connectionURL = "jdbc:mysql://" + this.hostname + ":" + this.port;
             if (this.database != null) {
                 connectionURL = connectionURL + "/" + this.database;
             }
-            connectionURL += "?allowPublicKeyRetrieval=true"; //useSSL=false&
-            System.out.println(connectionURL);
-            System.out.println(connectionURL.length());
+            connectionURL += "?allowPublicKeyRetrieval=true&useSSL=false";
             Class.forName("com.mysql.cj.jdbc.Driver");
             this.connection = DriverManager.getConnection(connectionURL, this.username, this.password);
         }
     }
 
-    boolean isConnectionOpen() throws SQLException {
+    public boolean isConnectionOpen() throws SQLException {
         return this.connection != null && !this.connection.isClosed();
     }
 
-    void closeConnection() throws SQLException {
+    public void closeConnection() throws SQLException {
         if (this.isConnectionOpen()) {
             this.connection.close();
         }
