@@ -6,7 +6,7 @@ plugins {
 apply plugin: 'maven'
 
 group 'de.daschi'
-version 'v1.1.2a'
+version 'v1.2.0a'
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
