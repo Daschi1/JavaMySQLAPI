@@ -5,7 +5,7 @@
 # Usage (For advice on how to create a sql query, look [here](https://github.com/Daschi1/updated-java-sql-generator))
 
 ```java
-MySQL.using(/*id*/, new MySQL(/*hostname*/, /*port*/, /*username*/, /*password*/, /*database*/)); //connect to a mySQL
+MySQL.add(/*id*/, new MySQL(/*hostname*/, /*port*/, /*username*/, /*password*/, /*database*/)); //connect to a mySQL
 MySQL.disconnect(/*id*/); //disconnects the mySQL
 MySQL.using(/*id*/, /*autoDisconnect*/); //configure autoDisconnect when program terminates
 
