@@ -1,5 +1,6 @@
 package de.daschi.core;
 
+import com.mysql.cj.jdbc.MysqlDataSource;
 import org.intellij.lang.annotations.Language;
 
 import javax.sql.rowset.CachedRowSet;
@@ -45,7 +46,7 @@ public class MySQL {
                 MySQL.autoDisconnects.put(id, false);
                 MySQL.mySQLs.get(id).openConnection();
             }
-        } catch (final SQLException | ClassNotFoundException exception) {
+        } catch (final SQLException exception) {
             exception.printStackTrace();
         }
     }
@@ -147,15 +148,22 @@ public class MySQL {
         this.database = database;
     }
 
-    public void openConnection() throws SQLException, ClassNotFoundException {  // TODO: 12.08.2020 use MySQLDataSource
+    public void openConnection() throws SQLException {
         if (!this.isConnectionOpen()) {
-            String connectionURL = "jdbc:mysql://" + this.hostname + ":" + this.port;
+            final MysqlDataSource mysqlDataSource = new MysqlDataSource();
+            mysqlDataSource.setServerName(this.hostname);
+            mysqlDataSource.setPort(this.port);
+//            String connectionURL = "jdbc:mysql://" + this.hostname + ":" + this.port;
             if (this.database != null) {
-                connectionURL = connectionURL + "/" + this.database;
+                mysqlDataSource.setDatabaseName(this.database);
+//                connectionURL = connectionURL + "/" + this.database;
             }
-            connectionURL += "?allowPublicKeyRetrieval=true&useSSL=false";
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            this.connection = DriverManager.getConnection(connectionURL, this.username, this.password);
+            mysqlDataSource.setAllowPublicKeyRetrieval(true);
+            mysqlDataSource.setUseSSL(false);
+//            connectionURL += "?allowPublicKeyRetrieval=true&useSSL=false";
+//            Class.forName("com.mysql.cj.jdbc.Driver");
+//            this.connection = DriverManager.getConnection(connectionURL, this.username, this.password);
+            this.connection = mysqlDataSource.getConnection(this.username, this.password);
         }
     }
 
