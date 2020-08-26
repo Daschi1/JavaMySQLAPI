@@ -186,6 +186,9 @@ public class MySQL {
             final Statement statement = this.connection.createStatement();
             statement.executeUpdate(sql);
             statement.close();
+        } else {
+            this.openConnection();
+            this.executeUpdate(sql);
         }
     }
 
@@ -197,15 +200,19 @@ public class MySQL {
             cachedRowSet.populate(resultSet);
             statement.close();
             return cachedRowSet;
+        } else {
+            this.openConnection();
+            return this.executeQuery(sql);
         }
-        return null;
     }
 
     public PreparedStatement executePreparedStatement(final String sql) throws SQLException {
         if (this.isConnectionOpen()) {
             return this.connection.prepareStatement(sql);
+        } else {
+            this.openConnection();
+            return this.executePreparedStatement(sql);
         }
-        return null;
     }
 
 }
